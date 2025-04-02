@@ -1,0 +1,45 @@
+[layout]
+type = "table"
+round_corners = true
+border_style = { dim = true }
+
+[[info]]
+type = "hostname"
+username = { fg = "magenta" }
+
+[[info]]
+type = "separator"
+
+[[info]]
+type = "env_variable"
+name = "XDG_SESSION_DESKTOP"
+label = { text = "󰂮 window manager", fg = "red", bold = true }
+
+[[info]]
+type = "nu"
+label = { text = "󱄅 nix flake", fg = "yellow", bold = true }
+exec = "(tokei ~/nix -o json | from json).Nix.code"
+postfix = " lines"
+
+[[info]]
+type = "command"
+cmd = "cat"
+args = ["/sys/devices/virtual/dmi/id/product_name"]
+label = { text = "󰌢 model", fg = "green", bold = true }
+
+[[info]]
+type = "command"
+cmd = "uname"
+args = ["-r"]
+label = { text = "󰌽 kernel", fg = "cyan", bold = true }
+
+[[info]]
+type = "nu"
+exec = '$env.SHELL | split row "/" | last'
+label = { text = " shell", fg = "blue", bold = true }
+
+[[info]]
+type = "env_variable"
+name = "EDITOR"
+label = { text = "󰂮 editor", fg = "magenta", bold = true }
+
