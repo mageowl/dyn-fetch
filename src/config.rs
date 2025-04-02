@@ -8,8 +8,25 @@ use style::{Style, Text};
 
 #[derive(Deserialize)]
 pub struct Config {
+    #[serde(default)]
+    pub art_layout: ArtPosition,
+    #[serde(default = "default_art_path")]
+    pub art_path: String,
     pub layout: Layout,
     pub info: Vec<Info>,
+}
+
+#[derive(Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum ArtPosition {
+    #[default]
+    None,
+    Left,
+    Top,
+}
+
+fn default_art_path() -> String {
+    String::from("art.txt")
 }
 
 #[derive(Deserialize)]

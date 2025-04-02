@@ -1,3 +1,5 @@
+art_layout = "left"
+
 [layout]
 type = "table"
 round_corners = true
@@ -13,7 +15,7 @@ type = "separator"
 [[info]]
 type = "env_variable"
 name = "XDG_SESSION_DESKTOP"
-label = { text = "󰂮 window manager", fg = "red", bold = true }
+label = { text = " window manager", fg = "red", bold = true }
 
 [[info]]
 type = "nu"
@@ -25,7 +27,7 @@ postfix = " lines"
 type = "command"
 cmd = "cat"
 args = ["/sys/devices/virtual/dmi/id/product_name"]
-label = { text = "󰌢 model", fg = "green", bold = true }
+label = { text = " shell", fg = "green", bold = true }
 
 [[info]]
 type = "command"

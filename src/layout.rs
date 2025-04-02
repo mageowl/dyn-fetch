@@ -20,16 +20,18 @@ pub enum Layout {
     },
 }
 
-pub fn display(config: Config) -> Result<(), std::io::Error> {
-    match config.layout {
-        Layout::Rectangle {
-            round_corners,
-            border_style,
-        } => display_rectangle(config.info, round_corners, border_style),
-        Layout::Table {
-            round_corners,
-            border_style,
-        } => display_table(config.info, round_corners, border_style),
+impl Layout {
+    pub fn display(self, info: Vec<Info>, out: impl Write) -> Result<(), std::io::Error> {
+        match self {
+            Layout::Rectangle {
+                round_corners,
+                border_style,
+            } => display_rectangle(info, round_corners, border_style, out),
+            Layout::Table {
+                round_corners,
+                border_style,
+            } => display_table(info, round_corners, border_style, out),
+        }
     }
 }
 
@@ -37,6 +39,7 @@ fn display_rectangle(
     info: Vec<Info>,
     round_corners: bool,
     border_style: Option<Style>,
+    mut out: impl Write,
 ) -> io::Result<()> {
     let lines: Vec<_> = info
         .into_iter()
@@ -55,9 +58,8 @@ fn display_rectangle(
         .map(|l| l.as_ref().map_or(0, |l| l.len()))
         .max()
         .unwrap_or(0);
-    let mut stdout = stdout();
     write!(
-        stdout,
+        out,
         "{}{}{}{}\x1b[0m\n",
         border_style.map_or_else(String::new, Style::format_start),
         if round_corners { "╭" } else { "┌" },
@@ -66,19 +68,19 @@ fn display_rectangle(
     )?;
     for line in lines {
         if let Some(line) = line {
-            write!(stdout, "{} ", option_format(border_style, "│"))?;
+            write!(out, "{} ", option_format(border_style, "│"))?;
             let len = line.len();
             let string: String = line.into();
-            stdout.write(string.as_bytes())?;
+            out.write(string.as_bytes())?;
             write!(
-                stdout,
+                out,
                 "{} {}\n",
                 " ".repeat(max_len - len),
                 option_format(border_style, "│")
             )?;
         } else {
             write!(
-                stdout,
+                out,
                 "{}├{}┤\x1b[0m\n",
                 border_style.map_or_else(String::new, Style::format_start),
                 "─".repeat(max_len + 2)
@@ -86,7 +88,7 @@ fn display_rectangle(
         }
     }
     write!(
-        stdout,
+        out,
         "{}{}{}{}\x1b[0m\n",
         border_style.map_or_else(String::new, Style::format_start),
         if round_corners { "╰" } else { "└" },
@@ -100,6 +102,7 @@ fn display_table(
     info: Vec<Info>,
     round_corners: bool,
     border_style: Option<Style>,
+    mut out: impl Write,
 ) -> io::Result<()> {
     let lines: Vec<_> = info
         .into_iter()
@@ -122,9 +125,8 @@ fn display_table(
         .map(|l| l.as_ref().map_or(0, |l| l.1.len()))
         .max()
         .unwrap_or(0);
-    let mut stdout = stdout();
     write!(
-        stdout,
+        out,
         "{}{}{}┬{}{}\x1b[0m\n",
         border_style.map_or_else(String::new, Style::format_start),
         if round_corners { "╭" } else { "┌" },
@@ -134,28 +136,28 @@ fn display_table(
     )?;
     for line in lines {
         if let Some((label, value)) = line {
-            write!(stdout, "{} ", option_format(border_style, "│"))?;
+            write!(out, "{} ", option_format(border_style, "│"))?;
             let len0 = label.len();
             let label: String = label.into();
-            stdout.write(label.as_bytes())?;
+            out.write(label.as_bytes())?;
             write!(
-                stdout,
+                out,
                 "{} {} ",
                 " ".repeat(max_len0 - len0),
                 option_format(border_style, "│")
             )?;
             let len1 = value.len();
             let value: String = value.into();
-            stdout.write(value.as_bytes())?;
+            out.write(value.as_bytes())?;
             write!(
-                stdout,
+                out,
                 "{} {}\n",
                 " ".repeat(max_len1 - len1),
                 option_format(border_style, "│")
             )?;
         } else {
             write!(
-                stdout,
+                out,
                 "{}├{}┼{}┤\x1b[0m\n",
                 border_style.map_or_else(String::new, Style::format_start),
                 "─".repeat(max_len0 + 2),
@@ -164,7 +166,7 @@ fn display_table(
         }
     }
     write!(
-        stdout,
+        out,
         "{}{}{}┴{}{}\x1b[0m\n",
         border_style.map_or_else(String::new, Style::format_start),
         if round_corners { "╰" } else { "└" },
